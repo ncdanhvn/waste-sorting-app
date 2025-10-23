@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Sorting App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #video {
+            width: 100%;
+            display: block;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .preview-container {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        #preview {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #captureBtn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        #captureBtn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        #analyzeBtn {
+            background: #2196F3;
+            color: white;
+        }
+
+        #analyzeBtn:hover:not(:disabled) {
+            background: #0b7dda;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        #retakeBtn {
+            background: #ff9800;
+            color: white;
+        }
+
+        #retakeBtn:hover {
+            background: #e68900;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .result {
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .result.organic {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+        }
+
+        .result.inorganic {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+
+        .result.hazardous {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .result h2 {
+            margin-bottom: 15px;
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-icon {
+            font-size: 1.2em;
+        }
+
+        .result-detail {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .result-detail strong {
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .items-list {
+            margin-top: 10px;
+        }
+
+        .item-tag {
+            display: inline-block;
+            background: rgba(255,255,255,0.7);
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 5px 5px 5px 0;
+            font-weight: 500;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            display: none;
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .info {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .info h3 {
+            margin-bottom: 10px;
+            color: #1976d2;
+        }
+
+        .info ul {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .info li {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            button {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>♻️ AI Waste Sorting</h1>
+
+        <div class="card">
+            <div class="info">
+                <h3>How it works:</h3>
+                <ul>
+                    <li><strong>Organic:</strong> Food scraps, plant materials, biodegradable items</li>
+                    <li><strong>Inorganic:</strong> Plastics, glass, metal, paper, cardboard</li>
+                    <li><strong>Hazardous:</strong> Batteries, electronics, chemicals, medical waste</li>
+                </ul>
+            </div>
+
+            <div class="camera-container">
+                <video id="video" autoplay playsinline></video>
+            </div>
+
+            <div class="preview-container">
+                <img id="preview" alt="Captured image">
+            </div>
+
+            <canvas id="canvas"></canvas>
+
+            <div class="controls">
+                <button id="captureBtn">📷 Capture Photo</button>
+                <button id="analyzeBtn" disabled>🔍 Analyze Waste</button>
+                <button id="retakeBtn" style="display: none;">🔄 Retake Photo</button>
+            </div>
+
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Analyzing waste with AI...</p>
+            </div>
+
+            <div class="error"></div>
+
+            <div class="result-container">
+                <div class="result">
+                    <h2><span class="category-icon"></span> <span class="category-name"></span></h2>
+                    <div class="result-detail">
+                        <strong>Confidence:</strong> <span class="confidence"></span>
+                    </div>
+                    <div class="result-detail">
+                        <strong>Reasoning:</strong> <span class="reasoning"></span>
+                    </div>
+                    <div class="result-detail items-detected">
+                        <strong>Items Detected:</strong>
+                        <div class="items-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const preview = document.getElementById('preview');
+        const captureBtn = document.getElementById('captureBtn');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const previewContainer = document.querySelector('.preview-container');
+        const cameraContainer = document.querySelector('.camera-container');
+        const loading = document.querySelector('.loading');
+        const errorDiv = document.querySelector('.error');
+        const resultContainer = document.querySelector('.result-container');
+        const result = document.querySelector('.result');
+
+        let capturedImage = null;
+
+        // Start camera
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' } // Use back camera on mobile
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                showError('Unable to access camera: ' + err.message);
+            }
+        }
+
+        // Capture photo
+        captureBtn.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+
+            capturedImage = canvas.toDataURL('image/jpeg', 0.8);
+            preview.src = capturedImage;
+
+            // Show preview, hide video
+            cameraContainer.style.display = 'none';
+            previewContainer.style.display = 'block';
+            captureBtn.style.display = 'none';
+            analyzeBtn.style.display = 'inline-block';
+            retakeBtn.style.display = 'inline-block';
+            analyzeBtn.disabled = false;
+
+            // Hide previous results
+            resultContainer.style.display = 'none';
+            errorDiv.style.display = 'none';
+        });
+
+        // Retake photo
+        retakeBtn.addEventListener('click', () => {
+            cameraContainer.style.display = 'block';
+            previewContainer.style.display = 'none';
+            captureBtn.style.display = 'inline-block';
+            analyzeBtn.style.display = 'none';
+            retakeBtn.style.display = 'none';
+            analyzeBtn.disabled = true;
+            resultContainer.style.display = 'none';
+            errorDiv.style.display = 'none';
+            capturedImage = null;
+        });
+
+        // Analyze waste
+        analyzeBtn.addEventListener('click', async () => {
+            if (!capturedImage) return;
+
+            loading.style.display = 'block';
+            errorDiv.style.display = 'none';
+            resultContainer.style.display = 'none';
+            analyzeBtn.disabled = true;
+
+            try {
+                const response = await fetch('/classify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image: capturedImage })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                displayResult(data);
+            } catch (err) {
+                showError('Analysis failed: ' + err.message);
+                analyzeBtn.disabled = false;
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        function displayResult(data) {
+            const category = data.category.toLowerCase();
+            const icons = {
+                organic: '🌱',
+                inorganic: '♻️',
+                hazardous: '⚠️'
+            };
+
+            result.className = 'result ' + category;
+            result.querySelector('.category-icon').textContent = icons[category] || '📦';
+            result.querySelector('.category-name').textContent = data.category;
+            result.querySelector('.confidence').textContent = data.confidence.toUpperCase();
+            result.querySelector('.reasoning').textContent = data.reasoning;
+
+            const itemsList = result.querySelector('.items-list');
+            itemsList.innerHTML = '';
+            data.items_detected.forEach(item => {
+                const tag = document.createElement('span');
+                tag.className = 'item-tag';
+                tag.textContent = item;
+                itemsList.appendChild(tag);
+            });
+
+            resultContainer.style.display = 'block';
+            analyzeBtn.disabled = false;
+        }
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // Initialize camera on load
+        startCamera();
+    </script>
+</body>
+</html>
