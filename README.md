@@ -2,13 +2,29 @@
 
 A web application that uses Anthropic's Claude vision model to classify waste into three categories: Organic, Inorganic, and Hazardous.
 
+**[Live Demo](https://your-app.onrender.com)** (Replace with your deployed URL)
+
+![Waste Sorting App](https://img.shields.io/badge/AI-Waste%20Sorting-green) ![Python](https://img.shields.io/badge/Python-3.12-blue) ![Flask](https://img.shields.io/badge/Flask-3.0-lightgrey) ![Claude](https://img.shields.io/badge/Anthropic-Claude-orange)
+
+## 🚀 Deploy Online
+
+Want to host this app online for free? See **[DEPLOYMENT.md](DEPLOYMENT.md)** for step-by-step instructions!
+
+Platforms supported:
+- ✅ Render.com (Recommended - Free with HTTPS)
+- ✅ Railway.app
+- ✅ PythonAnywhere
+
 ## Features
 
 - 📸 Camera capture directly from your device
 - 🤖 AI-powered waste classification using Claude Vision
 - 📱 Mobile-friendly interface
-- 🌐 Local network access (laptop hosts, mobile accesses)
-- ♻️ Three waste categories: Organic, Inorganic, Hazardous
+- 🌐 Works online or on local network
+- ♻️ Four categories: Organic, Inorganic, Hazardous, Unknown
+- 🔒 HTTPS support for secure camera access
+- 🔄 Automatic retry on API errors
+- ⚡ Fast Claude Haiku model
 
 ## Prerequisites
 
