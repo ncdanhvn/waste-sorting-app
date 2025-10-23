@@ -37,3 +37,4 @@ Thumbs.db
 
 # Testing
 test_json_cleanup.py
+test_port.sh

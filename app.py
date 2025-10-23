@@ -182,6 +182,9 @@ IMPORTANT: Respond with ONLY the raw JSON object. Do not wrap it in markdown cod
         }), 500
 
 if __name__ == '__main__':
+    # Get port from environment variable or use 5000 as default
+    port = int(os.environ.get('PORT', 5000))
+
     # Get the local IP address
     import socket
     hostname = socket.gethostname()
@@ -197,8 +200,8 @@ if __name__ == '__main__':
     print(f"\n{'='*60}")
     print(f"Waste Sorting Application is running!")
     print(f"{'='*60}")
-    print(f"Access from this computer: {protocol}://localhost:5000")
-    print(f"Access from mobile phone: {protocol}://{local_ip}:5000")
+    print(f"Access from this computer: {protocol}://localhost:{port}")
+    print(f"Access from mobile phone: {protocol}://{local_ip}:{port}")
 
     if use_ssl:
         print(f"\n⚠️  NOTE: You will see a security warning because of the")
@@ -211,7 +214,7 @@ if __name__ == '__main__':
 
     # Run on all network interfaces so it's accessible on local network
     if use_ssl:
-        app.run(host='0.0.0.0', port=5000, debug=True,
+        app.run(host='0.0.0.0', port=port, debug=True,
                 ssl_context=(cert_file, key_file))
     else:
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        app.run(host='0.0.0.0', port=port, debug=True)
