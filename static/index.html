@@ -152,6 +152,16 @@
             background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         }
 
+        .result.unknown {
+            background: linear-gradient(135deg, #d7d2cc 0%, #304352 100%);
+            color: white;
+        }
+
+        .result.unknown .item-tag {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+
         .result h2 {
             margin-bottom: 15px;
             font-size: 2em;
@@ -266,6 +276,9 @@
                     <li><strong>Inorganic:</strong> Plastics, glass, metal, paper, cardboard</li>
                     <li><strong>Hazardous:</strong> Batteries, electronics, chemicals, medical waste</li>
                 </ul>
+                <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                    Tip: Take clear photos with good lighting for best results!
+                </p>
             </div>
 
             <div class="camera-container">
@@ -393,12 +406,14 @@
                 const data = await response.json();
 
                 if (data.error) {
-                    throw new Error(data.error);
+                    // Use user-friendly message if available
+                    const errorMessage = data.user_message || data.error || 'An error occurred during analysis';
+                    throw new Error(errorMessage);
                 }
 
                 displayResult(data);
             } catch (err) {
-                showError('Analysis failed: ' + err.message);
+                showError(err.message);
                 analyzeBtn.disabled = false;
             } finally {
                 loading.style.display = 'none';
@@ -410,7 +425,8 @@
             const icons = {
                 organic: '🌱',
                 inorganic: '♻️',
-                hazardous: '⚠️'
+                hazardous: '⚠️',
+                unknown: '❓'
             };
 
             result.className = 'result ' + category;
@@ -421,12 +437,17 @@
 
             const itemsList = result.querySelector('.items-list');
             itemsList.innerHTML = '';
-            data.items_detected.forEach(item => {
-                const tag = document.createElement('span');
-                tag.className = 'item-tag';
-                tag.textContent = item;
-                itemsList.appendChild(tag);
-            });
+
+            if (data.items_detected && data.items_detected.length > 0) {
+                data.items_detected.forEach(item => {
+                    const tag = document.createElement('span');
+                    tag.className = 'item-tag';
+                    tag.textContent = item;
+                    itemsList.appendChild(tag);
+                });
+            } else {
+                itemsList.innerHTML = '<span class="item-tag">No items detected</span>';
+            }
 
             resultContainer.style.display = 'block';
             analyzeBtn.disabled = false;
